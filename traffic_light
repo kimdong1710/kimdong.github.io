@@ -1,0 +1,43 @@
+module traffic_light (
+						clk_20M,				//xung clock dau vao 20MHz
+						reset,					//tin hieu Reset=1
+						HEX0,HEX1,HEX2,HEX3,	//hien thi thoi gian
+						LR1,LR2,LG1,LG2,LY1,LY2	//tin hieu den bao
+						);
+	input clk_20M, reset;
+	output [6:0] HEX0,HEX1,HEX2,HEX3;
+	output LR1,LR2,LG1,LG2,LY1,LY2;
+	wire [4:0] count;
+	wire LR1;
+	wire clk,rst,timeout45,timeout30,eLED01,eLED23;
+	
+	divide_clk M1(
+					clk_20M,
+					reset,
+					clk,
+					rst
+				);
+	time_couter  M2(
+					rst,			//tin hieu reset
+					clk,
+					count, 		//gia tri dem dua ra hien thi
+					timeout45,		//tin hieu ra dieu khien FSM
+					timeout30
+				);
+	state 		M3(
+					clk,
+					rst,
+					timeout45,timeout30,		//tin hieu dieu khien FSM
+					LR1,LR2,LG1,LG2,LY1,LY2,	//tin hieu den bao
+					eLED01, eLED23			//cho phep hien thi tren led7seg
+					);
+	led7seg		M4(
+					hex0,hex1,		//hex0, hex1 cho ben 1
+					hex2,hex3,		//hex2, hex3 cho ben 2
+					count,		//gia tri dua vao tu bo dem_nguoc
+					LR1,			//den do ben 1		
+					eLED01,		//cho phep sang hai led01
+					eLED23, 		//cho phep sang hai led23
+					clk
+					);
+endmodule
